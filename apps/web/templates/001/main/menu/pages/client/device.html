@@ -1,0 +1,189 @@
+{% extends "/001/common/main/layout.html" %}
+	{% block topCss %}
+ 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css"><font></font>
+	{% endblock %}
+				{% block main %}
+				<div class="container-fluid p-0">
+					<div class="row mb-2 mb-xl-3">
+						<div class="col-auto d-none d-sm-block">
+							<h3><strong>Client</strong> Dashboard</h3>
+						</div>
+
+						<div class="col-auto ml-auto text-right mt-n1">
+							<nav aria-label="breadcrumb">
+								<ol class="breadcrumb bg-transparent p-0 mt-1 mb-0">
+									<li class="breadcrumb-item"><a href="#">AdminKit</a></li>
+									<li class="breadcrumb-item"><a href="#">Dashboards</a></li>
+									<li class="breadcrumb-item active" aria-current="page">Analytics</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<div class="card flex-fill w-100">
+								<div class="card-header">
+									<h5 class="card-title mb-0">Device
+										<button class="badge bg-success" id="btnSync">동기화</button>
+									</h5>
+
+								</div>
+								<div class="card-body px-4">
+									<table id="device_table" class="display">
+										<thead>
+											<tr>
+												<th>ip</th>
+												<th>Name</th>
+												<th>Total</th>
+												<th>Used</th>
+												<th>Free</th>
+												<th>Percent</th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<div class="card flex-fill w-100">
+								<div class="card-header">
+									<h5 class="card-title mb-0">Service</h5>
+								</div>
+								<div class="card-body px-4">
+									<table id="service_table" class="display">
+										<thead>
+											<tr>
+												<th>ip</th>
+												<th>Name</th>
+												<th>Desc</th>
+												<th>Status</th>
+												<th>StartType</th>
+												<th>Logon</th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<div class="card flex-fill w-100">
+								<div class="card-header">
+									<h5 class="card-title mb-0">job schedule</h5>
+								</div>
+								<div class="card-body px-4">
+									<table id="job_schedule_table" class="display">
+										<thead>
+											<tr>
+												<th>ip</th>
+												<th>Name</th>
+												<th>Path</th>
+												<th>Status</th>
+												<th>LastRunTime.</th>
+												<th>LastResult</th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endblock %}
+
+	{% block bottomJs %}
+	<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+	<script>
+
+		let device_table;
+		let service_table;
+		let job_schedule_table;
+
+		$(document).ready( function () {
+			initTable()
+			syncDeviceClient(false)
+		});
+
+
+		let btnSync = document.getElementById('btnSync');
+		btnSync.onclick = function() {
+			device_table.clear().draw();
+			service_table.clear().draw();
+			job_schedule_table.clear().draw();
+			syncDeviceClient()
+		}
+
+
+		let syncDeviceClient = (isNotice) => {
+			commonAjaxToJson("/client/device/get/list","POST", null, function(ajaxData) {
+				let data = ajaxData.data;
+				for (let key in data) {
+				    let ip = key;
+				    console.log(key);
+				    let device = data[key];
+
+					// 디바이스 동기화
+					let store = device["store"];
+					for( let s in store) {
+						device_table.row.add( [
+							ip,
+							store[s]['name'],
+							store[s]['total']+"MB",
+							store[s]['used']+"MB",
+							store[s]['free']+"MB",
+							store[s]['percent'] +"%"
+						] ).draw( false );
+						console.log();
+					}
+
+					// 서비스 목록 동기화
+					let service = device["service"]
+					for( let s in service) {
+						service_table.row.add( [
+							ip,
+							service[s]['name'],
+							service[s]['desc'],
+							service[s]['status'],
+							service[s]['startType'],
+							service[s]['logon']
+						] ).draw( false );
+						console.log();
+					}
+
+					// 작업 스케줄 동기화
+					let taskscheduler = device["taskscheduler"]
+					for( let s in store) {
+						job_schedule_table.row.add( [
+							ip,
+							taskscheduler[s]['name'],
+							taskscheduler[s]['path'],
+							taskscheduler[s]['status'],
+							taskscheduler[s]['lastRunTime'],
+							taskscheduler[s]['lastResult']
+						] ).draw( false );
+						console.log();
+					}
+				}
+			});
+		}
+
+		let initTable = () => {
+			device_table = $('#device_table').DataTable({
+				scrollY:300
+    		});
+
+    		service_table = $('#service_table').DataTable({
+				scrollY:300
+    		});
+
+    		job_schedule_table = $('#job_schedule_table').DataTable({
+				scrollY:300
+    		});
+		}
+
+	</script>
+	{% endblock %}

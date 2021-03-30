@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+	{% include '/001/common/header.html' %}
+</head>
+
+<body>
+	<main class="d-flex w-100">
+		{% block main %}
+		{% endblock %}
+	</main>
+	{% include '/001/common/bottom.html' %}
+	{% block customJS %}
+	{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+{% extends "/001/common/auth/layout.html" %}
+        {% block main %}
+		<div class="container d-flex flex-column">
+			<div class="row vh-100">
+				<div class="col-sm-10 col-md-8 col-lg-6 mx-auto d-table h-100">
+					<div class="d-table-cell align-middle">
+						<div class="card">
+							<div class="card-body">
+								<div class="m-sm-4">
+									<div class="text-center">
+										<img src="/static/001/img/logo/logo.png" alt="Charles Hall" class="img-fluid rounded-circle" width="132" height="132" />
+									</div>
+									<div class="text-center mt-4">
+										<h1 class="h2">Only administrators can use</h1>
+										<p class="lead">
+											Sign in to your account to continue
+										</p>
+									</div>
+									<form>
+										<div class="mb-3">
+											<label class="form-label">Email</label>
+											<input class="form-control form-control-lg" type="email" name="email" id="email" placeholder="Enter your email" onKeyDown="pressEnter()"/>
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Password</label>
+											<input class="form-control form-control-lg" type="password" name="password" id="password" placeholder="Enter your password" onKeyDown="pressEnter()"/>
+										</div>
+										<div>
+											<label class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="remember-me" name="remember-me" checked/>
+                                                    <span class="form-check-label">
+                                                      Remember me next time
+                                                    </span>
+                                            </label>
+										</div>
+										<div class="text-center mt-3">
+											<a class="btn btn-lg btn-block btn-primary" id="btnSignIn" style="display: block">Sign in</a>
+											<a class="btn btn-lg btn-block btn-secondary" id="btnState" style="display:None;">Loggin</a>
+											<!-- <button type="submit" class="btn btn-lg btn-primary">Sign in</button> -->
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endblock %}
+	{% block customJS %}
+	<script>
+	const btnSignIn = document.getElementById('btnSignIn');
+
+	const getParams = () => {
+		const params = {
+			'email': document.getElementById('email').value,
+			'password': document.getElementById('password').value
+		}
+		return params
+	}
+
+	const pressEnter = () => {
+		if(event.keyCode == 13){
+            btnSignIn.click();
+        }
+	}
+
+	btnSignIn.onclick = function() {
+		const params = getParams();
+		if(!params.email.trim()){
+			alert("아이디를 입력해주세요");
+			return -1;
+		}
+		else if(!params.password.trim()){
+			alert("패스워드를 입력해주세요");
+			return -1;
+		}
+		document.getElementById("btnSignIn").style.display = 'None';
+		document.getElementById("btnState").style.display = '';
+
+		commonAjaxToJson("/signin.do",'POST', params, function(ajaxData) {
+			if(ajaxData.result){
+				location.href="/";
+			}
+			else{
+				document.getElementById("btnSignIn").style.display = '';
+				document.getElementById("btnState").style.display = 'None';
+				alert(ajaxData.msg);
+			}
+		});
+	}
+	</script>
+	{% endblock %}

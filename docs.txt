@@ -1,0 +1,7 @@
+
+
+
+sphinx-quickstart
+
+make html
+sphinx-apidoc -F -o docs . --separate

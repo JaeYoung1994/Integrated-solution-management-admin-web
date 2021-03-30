@@ -1,0 +1,214 @@
+{% extends "/001/common/main/layout.html" %}
+				{% block main %}
+				<div class="container-fluid p-0">
+
+					<h1 class="h3 mb-3">Settings</h1>
+
+					<div class="row">
+						<div class="col-md-3 col-xl-2">
+
+							<div class="card">
+								<div class="card-header">
+									<h5 class="card-title mb-0">Profile Settings</h5>
+								</div>
+
+								<div class="list-group list-group-flush" role="tablist">
+									<!--
+									<a class="list-group-item list-group-item-action" data-toggle="list" href="#Loggedin" role="tab">
+									  	Account
+									</a>
+									-->
+									<a class="list-group-item list-group-item-action active" data-toggle="list" href="#Register" role="tab">
+									  	Register
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-9 col-xl-10">
+							<div class="tab-content">
+								<!-- 접속 유저 탭
+								<div class="tab-pane fade" id="Loggedin" role="tabpanel">
+									<div class="card">
+										<div class="card-body">
+											<h5 class="card-title">List of logged in Users</h5>
+											<form>
+												<div class="mb-3">
+													<label class="form-label" for="inputPasswordCurrent">Current password</label>
+													<input type="password" class="form-control" id="inputPasswordCurrent">
+													<small><a href="#">Forgot your password?</a></small>
+												</div>
+												<div class="mb-3">
+													<label class="form-label" for="inputPasswordNew">New password</label>
+													<input type="password" class="form-control" id="inputPasswordNew">
+												</div>
+												<div class="mb-3">
+													<label class="form-label" for="inputPasswordNew2">Verify password</label>
+													<input type="password" class="form-control" id="inputPasswordNew2">
+												</div>
+												<button type="submit" class="btn btn-primary">Save changes</button>
+											</form>
+
+										</div>
+									</div>
+								</div>
+								-->
+
+								<!-- 계정 등록 탭 -->
+								<div class="tab-pane fade show active" id="Register" role="tabpanel">
+									<div class="card">
+										<div class="card-header">
+											<h5 class="card-title mb-0">Register</h5>
+										</div>
+										<div class="card-body">
+											<div class="row">
+												<div class="col-md-8">
+													<div class="mb-3">
+														<label class="form-label" for="email">Email</label>
+														<input type="text" class="form-control" id="email" placeholder="Please enter your email">
+													</div>
+													<div class="mb-3">
+														<label class="form-label" for="password">Password</label>
+														<input type="password" class="form-control" id="password" placeholder="At least 6 characters">
+													</div>
+													<div class="mb-3">
+														<label class="form-label" for="nickName">NickName</label>
+														<input type="text" class="form-control" id="nickName" placeholder="Please enter your password again">
+													</div>
+												</div>
+
+												<div class="col-md-4">
+													<div class="text-center">
+														<img alt="Charles Hall" src="/static/common/img/no/no-pictures.png" class="rounded-circle img-responsive mt-2" width="128" height="128" />
+														<div class="mt-2">
+															<span class="btn btn-primary">Upload</span>
+														</div>
+														<small>구현 예정</small>
+													</div>
+												</div>
+											</div>
+
+											<div class="row">
+												<div class="mb-3 col-md-6">
+													<label class="form-label" for="firstName">First name</label>
+													<input type="text" class="form-control" id="firstName" placeholder="First name">
+												</div>
+												<div class="mb-3 col-md-6">
+													<label class="form-label" for="lastName">Last name</label>
+													<input type="text" class="form-control" id="lastName" placeholder="Last name">
+												</div>
+											</div>
+											<div class="row">
+												<div class="mb-3 col-md-4">
+													<label class="form-label" for="authority">Authority</label>
+													<select id="authority" class="form-control">
+														<option value="" selected>Choose...</option>
+														{% for authority in authoritys %}
+														<option value="{{authority.code}}">{{authority.name}}</option>
+														{% endfor %}
+													</select>
+												</div>
+
+												<div class="mb-3 col-md-4">
+													<label class="form-label" for="group">Group</label>
+													<select id="group" class="form-control">
+														<option value="" selected>Choose...</option>
+														{% for group in groups %}
+														<option value="{{group.code}}">{{group.name}}</option>
+														{% endfor %}
+													</select>
+												</div>
+											</div>
+											<button id="btnAdd" class="btn btn-primary">ADD</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endblock %}
+	{% block bottomJs %}
+	<script>
+		// 사용자 등록 데이터 추출
+		const getRegistParam = () => {
+			let param = {
+				"email":document.getElementById('email').value.trim(),
+				"password":document.getElementById('password').value,
+				"nickName":document.getElementById('nickName').value,
+				"firstName":document.getElementById('firstName').value.trim(),
+				"lastName":document.getElementById('lastName').value.trim(),
+				"authority":selectedValue(document.getElementById('authority')),
+				"group":selectedValue(document.getElementById('group'))
+			}
+			return param
+		};
+
+		const chkRegistValue = (param) => {
+			if (!checkEmail(param.email)) {
+				commonAlert("이메일을 입력해주세요.","Error","error");
+				return -1;
+			}
+
+			if (!param.password) {
+				commonAlert("패스워드를 입력해주세요.","Error","error");
+				return -1;
+			}
+
+			if (!param.nickName) {
+				commonAlert("별칭을 입력해주세요.","Error","error");
+				return -1;
+			}
+
+			if (!param.firstName) {
+				commonAlert("성을 입력해주세요.","Error","error");
+				return false;
+			}
+
+			if (!param.lastName) {
+				commonAlert("이름을 입력해주세요.","Error","error");
+				return false;
+			}
+
+			if (!param.authority) {
+				commonAlert("권한을 입력해주세요.","Error","error");
+				return false;
+			}
+			return true;
+		};
+
+		const btnAdd = document.getElementById('btnAdd');
+
+		btnAdd.onclick = function() {
+			let params = getRegistParam();
+			// 문자열 체크
+			if(chkRegistValue(params));
+			commonAjaxToJson("/setting/auth/register",'POST', params, function(ajaxData) {
+				if(ajaxData.result){
+					commonAlert("정상적으로 등록되었습니다.","Success","success");
+				}
+				else{
+					commonAlert(ajaxData.msg,"Error","error");
+				}
+			});
+		}
+
+		const selectedValue = (obj) => {
+			let val = null;
+			for(i=0; i<obj.options.length; i++) {
+				if(obj.options[i].selected == true) {
+					val = obj.options[i].value;
+					break;
+				}
+			}
+			return val
+		}
+
+		const checkEmail = (email) => {
+			let regex=/([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+			let result = email != '' && email != 'undefined' && regex.test(email);
+			return result;
+		}
+
+	</script>
+	{% endblock %}

@@ -1,0 +1,7 @@
+venv/
+
+.idea/
+
+init_real.py
+
+dbConfig_real.py

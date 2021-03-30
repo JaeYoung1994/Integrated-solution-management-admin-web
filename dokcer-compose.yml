@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/dockerfile
+    container_name: nginx
+    hostname: nginx-dev
+    ports:
+      - '80:80'
+    networks:
+      - backend
+    links:
+      - web_project
+    depends_on:
+      - web_project
+
+  web_project:
+    build:
+      context: .
+      dockerfile: docker/web/dockerfile
+  container_name: web_project
+  hostname: web_project_dev
+  ports:
+    - '5000:5000'
+  networks:
+    - backend
+  tty: true
+
+networks:
+backend:
+driver: 'bridge'

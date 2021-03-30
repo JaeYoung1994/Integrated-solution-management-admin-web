@@ -1,0 +1,61 @@
+
+# 위치 설정
+cd C:\Users\ydgl1\Desktop\Dev\Python\TrollApi
+
+# 네트워크 설정
+docker network create --gateway 172.19.0.1 --subnet 172.19.0.0/21 commonNet
+
+
+51~70 command
+71~80 DBRestApi
+81~90 admin
+
+
+101 mariaDB
+102 redis
+
+#MariaDB 생성
+docker pull mariadb
+docker run --name MariaDB -d --restart="always" --net commonNet --ip 172.19.0.101 -p 10001:3306 -e MYSQL_ROOT_PASSWORD=2310 mariadb
+docker exec -it MariaDB /bin/bash
+apt-get update
+apt-get -y install nano vim
+
+#Redis 생성
+docker run --name Redis --restart="always"  -itd --net commonNet --ip 172.19.0.102 -p 9001:9001 -v /root/config/redis.cfg:/usr/local/etc/redis/redis.conf redis redis-server /usr/local/etc/redis/redis.conf
+
+# RestApi Docker 생성
+docker build -t db_api -f docker/restApi/Dockerfile .
+docker run --name db_api_001 -d --restart="always" --net commonNet --ip 172.19.0.71 -p 5000:5000 db_api
+docker run --name db_api_002 -d --restart="always" --net commonNet --ip 172.19.0.72 -p 5001:5000 db_api
+
+# Admin web Docker 생성
+docker build -t admin_server -f docker/web/Dockerfile .
+docker run --name admin_server_001 -d --restart="always" --net commonNet --ip 172.19.0.81 -p 8080:80 admin_server
+docker run --name admin_server_002 -d --restart="always" --net commonNet --ip 172.19.0.82 -p 8081:80 admin_server
+
+# Command Docker 생성
+docker build -t command_server -f docker/command/Dockerfile .
+docker run --name command_server_001 -d --restart="always" --net commonNet --ip 172.19.0.51 -p 9011:9009 -p 9090:9000 command_server
+docker run --name command_server_002 -d --restart="always" --net commonNet --ip 172.19.0.52 -p 9012:9009 -p 9091:9000 command_server
+
+docker rm -f db_api_001 db_api_002 admin_server_001 admin_server_002 command_server_001 command_server_002 
+docker rmi command_server admin_server db_api
+
+
+
+// nginx 설치
+// nginx 이미지 설치
+docker pull nginx
+// 이미지 설치 여부 확인
+docker images
+docker run --name webserver --restart="always" --net commonNet --ip 172.19.0.200 -p 80:80 -p 20000:20000 nginx
+docker container ps -a
+
+// 컨테이너 중지시
+docker container ps -a
+docker stop webserver
+
+// 컨테이너 삭제시
+docker rm e7208dad2e46
+docker rm 4fbc52d8b379
