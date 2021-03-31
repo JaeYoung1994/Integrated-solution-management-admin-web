@@ -24,8 +24,17 @@ class Session:
         cls._dbConn.setex(cls._prefix + skey, cls._timeout, username)
         return skey
 
+    def getSession(cls, session):
+        username = {}
+        session = cls._prefix + session
+        sessions = cls._dbConn.keys(cls._prefix+"*")
+        if session in sessions:
+            username = cls._dbConn.get(session)
+        return username
+
     def checkSession(cls, skey):
         result = False
+        sessions = cls._dbConn.keys(cls._prefix + "*")
         username = cls._dbConn.get(cls._prefix + skey)
         if username is not None:
             cls._dbConn.expire(cls._prefix + skey, cls._timeout)

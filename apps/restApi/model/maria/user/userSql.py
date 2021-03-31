@@ -13,7 +13,7 @@ class UserSql():
         SQL: Account Information
         author: 이재영 (Jae Young Lee)
     '''
-    def getAccountInfo(self, d):
+    def getAccountInfo(self, user:'dict'):
         rv = { 'result':False }
         try:
             curs = self._dbConn.cursor()
@@ -21,7 +21,7 @@ class UserSql():
                 SELECT u.email, u.nickName, u.password, u.authority, u.group 
                 FROM user AS u
                 WHERE u.email = "%s"
-                ''' % (d["email"])
+                ''' % (user["email"])
             curs.execute(sql)
             rv['result'] = True
             rv['data'] = curs.fetchone()

@@ -4,12 +4,15 @@ from common.init import Init
 from common.utils import Utils
 
 class Menu:
+    def isAuth(self, url:str, userInfo:dict):
+        return {"result":True};
+
     #메뉴 HTML 창 생성
-    def list(self, url):
+    def list(self, url:str, userInfo:dict):
         list = None
-        method = "GET"
+        method = "POST"
         apiUrl = Init.apiPath() + "/sys/main/menu"
-        resMenu = Utils.requestUrl(method=method, url=apiUrl)
+        resMenu = Utils.requestUrl(method=method, url=apiUrl, json=userInfo)
         if resMenu.status_code == 200:
             resMenuJson = json.loads(resMenu.text)
             if resMenuJson["result"]:
