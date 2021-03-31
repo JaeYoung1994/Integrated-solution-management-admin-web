@@ -1,4 +1,5 @@
 import copy
+import json
 
 from flask import request
 from flask_restx import Resource, Namespace, fields
@@ -13,7 +14,6 @@ auth_user = Namespace(
     name='auth_user',
     description='User authentication API'
 )
-
 
 @auth_user.route('/signin')
 class Auth_user_signin(Resource):
@@ -82,7 +82,8 @@ class Auth_user_signin(Resource):
 
             # Create session if passwords match
             if pwdChk:
-                session = RedisSession().createSession(userInfo["data"]["email"])
+                user = json.dumps({"email":userInfo["data"]["email"]})
+                session = RedisSession().createSession(user)
                 rv = copy.deepcopy(CommonCode.Success.value)
                 rv["data"] = {"session": session}
             else:
@@ -145,7 +146,8 @@ class Auth_user_check_Session(Resource):
     })
     # checkSession request json Model
     chk_Session_success = auth_user.model("auth_user_chk_Session_success", {
-        "result": fields.String(description="Login was successful", required=True, example="True or False"),
+        "result": fields.String(description="Success or not", required=True, example="True or False"),
+        "data": fields.String(description="", required=True, example="user dictionary")
     })
     # signout response false Model
     chk_session_false = auth_user.model("auth_user_chk_Session_false", {
@@ -161,7 +163,7 @@ class Auth_user_check_Session(Resource):
         rv, code = {}, 200
         try:
             req = request.json
-            hasKey = ["token", "session"]
+            hasKey = ["session"]
             isKey = Utils.isDicHasKey(req, hasKey)
             if not isKey:
                 return ReqCode.notKey.value, 400
@@ -171,9 +173,11 @@ class Auth_user_check_Session(Resource):
 
             session = req.get("session")
             # Session validity check
-            check = RedisSession().checkSession(session)
+            redisSesson = RedisSession();
+            check = redisSesson.checkSession(session)
             if check:
-                rv = CommonCode.Success.value
+                data = redisSesson.getSession(session)
+                rv = {"result":True, "data": json.loads(data)}
             else:
                 code = 400
                 rv = CommonCode.Fail.value

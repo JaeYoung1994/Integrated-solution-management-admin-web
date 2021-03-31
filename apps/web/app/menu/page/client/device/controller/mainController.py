@@ -18,11 +18,18 @@ author: 이재영 (Jae Young Lee)
 '''
 @bp_menu_page_client_device_main.route("/")
 def menu_page_client_device_view():
-    if not Session().checkSession():
-        return redirect(url_for('index_sign.signin_view'))
+    # 세션 여부 체크
+    userInfo = Session().checkSession()
+    if not userInfo["result"]:
+        return redirect(url_for("index_sign.signin_view"))
+
     menu = Menu()
-    menuHtml = menu.list("/client/device")
-    authority = "authority"
+    # 메뉴 권한 확인
+    isMenuAuth = menu.isAuth("/client/device", userInfo["data"])
+    if not isMenuAuth["result"]:
+        return redirect(url_for("index_index.index_view"))
+    menuHtml = menu.list("/client/device", userInfo["data"])
+
     apiUrl = Init.apiPath() + "/user/authority"
     resAuthority = Utils.requestUrl(method="GET", url=apiUrl)
     if resAuthority.status_code == 200:

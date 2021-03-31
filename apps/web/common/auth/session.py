@@ -5,21 +5,19 @@ from common.utils import Utils
 
 class Session:
     def checkSession(self):
-        isSession = False
+        result = {"result": False}
         if "sessionKey" not in session:
-            return isSession
+            return result
         else:
             method = "POST"
             url = Init.apiPath()+"/auth/user/chk/session"
             j = {
-                "token":"1234",
                 "session":session["sessionKey"]
             }
             res = Utils.requestUrl(method=method, url=url, json=j)
             if res.status_code == 200:
-                j = json.loads(res.text)
-                isSession = j['result']
+                result = json.loads(res.text)
             else:
                 del session["sessionKey"]
-            return isSession
+            return result
 

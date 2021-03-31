@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, render_template, url_for, redirect
+from flask import Blueprint, render_template, url_for, redirect, session
 from common.auth.session import Session
 from common.auth.menu import Menu
 from common.worker.command import Command
@@ -18,11 +18,23 @@ author: 이재영 (Jae Young Lee)
 '''
 @bp_index_index.route("/")
 def index_view():
-    if not Session().checkSession():
-        return redirect(url_for('index_sign.signin_view'))
+    # 세션 여부 체크
+    userInfo = Session().checkSession()
+    if not userInfo["result"]:
+        return redirect(url_for("index_sign.signin_view"))
+
     menu = Menu()
+    # 메뉴 권한 확인
+    #isMenuAuth = menu.isAuth("/", userInfo["data"])
+    #if not isMenuAuth["result"]:
+        #return redirect(url_for("index_index.index_view"))
+
+    # 메뉴 html 생성
+    menuHtml = menu.list("/", userInfo["data"])
+
     command = Command()
-    clients = command.getClientList()
+    # 연결된 TCP Server(Command) 목록
     commands = command.getCommandList()
-    menuHtml = menu.list("/")
+    # 연결된 TCP Clinet(Worker) 목록
+    clients = command.getClientList()
     return render_template(template_path + '/main/index/index.html', menuHtml=menuHtml, clientCnt=len(clients), commands=len(commands))

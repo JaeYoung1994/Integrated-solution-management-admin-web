@@ -11,12 +11,27 @@ class SysMainSql():
         SQL: Main Menu Information
         author: 이재영 (Jae Young Lee)
     '''
-    def getMainMenuList(self):
+    def getMainMenuList(self, authCode, groupCode):
         rv = { 'result':False }
         try:
             curs = self._dbConn.cursor()
-            sql = '''
+            sql = f'''
                 SELECT `id`, `name`, `url`, `depth`, `pid`, `order` FROM sys_menu
+                WHERE 
+                    `usedYN` = 'Y' 
+                    AND (`id` IN (
+                            SELECT `id` 
+                            FROM auth_menu 
+                            WHERE `type` = 'authority' 
+                            AND `code` = '{authCode}'
+                        )
+                        OR `id` IN (
+                            SELECT `id` 
+                            FROM auth_menu 
+                            WHERE `type` = 'group' 
+                            AND `code` = '{groupCode}'
+                        )
+                    )
                 ORDER BY `depth`, `pid`, `order`
                 '''
             curs.execute(sql)
