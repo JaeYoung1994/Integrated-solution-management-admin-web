@@ -2,7 +2,7 @@ from uuid import uuid4
 
 class Init():
     # restApi 주소
-    _restApiPath = "http://192.168.219.102"
+    _restApiPath = "http://192.168.219.102:5000"
     # 웹 주소
     _webPath = "http://127.0.0.1"
     # 토큰 생성

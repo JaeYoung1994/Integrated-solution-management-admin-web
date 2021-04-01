@@ -50,7 +50,22 @@ def menu_page_client_device_get_list():
     if not Session().checkSession():
         return redirect(url_for('index_sign.signin_view'))
     command = Command()
-    command.syncClientDeviceList()
     clients = command.getClientDeviceList()
     result = {"result": True, "data":clients}
     return json.dumps(result)
+
+'''
+클라이언트 서버 정보
+Clinet Server Info
+author: 이재영 (Jae Young Lee)
+'''
+@bp_menu_page_client_device_main.route("/sync", methods=['POST'])
+def menu_page_client_device_sync():
+    if not Session().checkSession():
+        return redirect(url_for('index_sign.signin_view'))
+    command = Command()
+    command.syncClientDeviceList()
+    result = {"result": True}
+    return json.dumps(result)
+
+

@@ -19,14 +19,26 @@
 							</nav>
 						</div>
 					</div>
+
 					<div class="row">
 						<div class="col-12">
 							<div class="card flex-fill w-100">
 								<div class="card-header">
-									<h5 class="card-title mb-0">Device
-										<button class="badge bg-success" id="btnSync">동기화</button>
-									</h5>
+									<h5 class="card-title mb-0">요청버튼</h5>
+								</div>
+								<div class="card-body px-4">
+									<button class="badge bg-success" id="btnSync">동기화</button>
+									<button class="badge bg-success" id="btnLoad">검색</button>
+								</div>
+							</div>
+						</div>
+					</div>
 
+					<div class="row">
+						<div class="col-12">
+							<div class="card flex-fill w-100">
+								<div class="card-header">
+									<h5 class="card-title mb-0">Device</h5>
 								</div>
 								<div class="card-body px-4">
 									<table id="device_table" class="display">
@@ -38,15 +50,13 @@
 												<th>Used</th>
 												<th>Free</th>
 												<th>Percent</th>
+												<th>SyncTime</th>
 											</tr>
 										</thead>
 									</table>
 								</div>
 							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-12">
+
 							<div class="card flex-fill w-100">
 								<div class="card-header">
 									<h5 class="card-title mb-0">Service</h5>
@@ -61,6 +71,7 @@
 												<th>Status</th>
 												<th>StartType</th>
 												<th>Logon</th>
+												<th>SyncTime</th>
 											</tr>
 										</thead>
 									</table>
@@ -84,6 +95,7 @@
 												<th>Status</th>
 												<th>LastRunTime.</th>
 												<th>LastResult</th>
+												<th>SyncTime</th>
 											</tr>
 										</thead>
 									</table>
@@ -105,20 +117,26 @@
 
 		$(document).ready( function () {
 			initTable()
-			syncDeviceClient(false)
+			loadClientDevice(false)
 		});
 
 
 		let btnSync = document.getElementById('btnSync');
 		btnSync.onclick = function() {
+			commonAlert("TCP 클라이언트 동기화 요청","Success","success");
+			syncClientDevice();
+			commonAlert("TCP 클라이언트 동기화 요청 성공","Warning","warning");
+		}
+
+		let btnLoad = document.getElementById('btnLoad');
+		btnLoad.onclick = function() {
 			device_table.clear().draw();
 			service_table.clear().draw();
 			job_schedule_table.clear().draw();
-			syncDeviceClient()
+			loadClientDevice();
 		}
 
-
-		let syncDeviceClient = (isNotice) => {
+		let loadClientDevice = (isNotice) => {
 			commonAjaxToJson("/client/device/get/list","POST", null, function(ajaxData) {
 				let data = ajaxData.data;
 				for (let key in data) {
@@ -135,9 +153,9 @@
 							store[s]['total']+"MB",
 							store[s]['used']+"MB",
 							store[s]['free']+"MB",
-							store[s]['percent'] +"%"
+							store[s]['percent'] +"%",
+							device['worked']
 						] ).draw( false );
-						console.log();
 					}
 
 					// 서비스 목록 동기화
@@ -149,25 +167,31 @@
 							service[s]['desc'],
 							service[s]['status'],
 							service[s]['startType'],
-							service[s]['logon']
+							service[s]['logon'],
+							device['worked']
 						] ).draw( false );
-						console.log();
 					}
 
 					// 작업 스케줄 동기화
 					let taskscheduler = device["taskscheduler"]
-					for( let s in store) {
-						job_schedule_table.row.add( [
+					for( let s in taskscheduler) {
+						job_schedule_table.row.add([
 							ip,
 							taskscheduler[s]['name'],
 							taskscheduler[s]['path'],
 							taskscheduler[s]['status'],
 							taskscheduler[s]['lastRunTime'],
-							taskscheduler[s]['lastResult']
-						] ).draw( false );
-						console.log();
+							taskscheduler[s]['lastResult'],
+							device['worked']
+						]).draw( false );
 					}
 				}
+			});
+		}
+
+		let syncClientDevice = (isNotice) => {
+			commonAjaxToJson("/client/device/sync","POST", null, function(ajaxData) {
+				let data = ajaxData.result;
 			});
 		}
 

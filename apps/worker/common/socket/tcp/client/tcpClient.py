@@ -43,9 +43,10 @@ class TCPClient:
     # TCP 서버 연결 체크
     def rcvChk(cls):
         while True:
-            time.sleep(5)
-            result = cls.reMsg('{"check":123}')
-            print(f"서버 접속 체크-{result}")
+            checkTime = datetime.datetime.now()
+            time.sleep(120)
+            result = cls.reMsg('{"check":1}')
+            print(f"{checkTime} - 서버 접속 체크-{result}")
             if not result["result"]:
                 break;
 
@@ -64,13 +65,13 @@ class TCPClient:
             except Exception as ex:
                 print(str(ex))
                 if str(ex).find("[WinError 10054]") == 0:  # 서버 접근이 끊길 경우
-                    msg = "접속서버 연결 끊김"
+                    msg = str(ex)
                     return msg
                 elif str(ex).find("[WinError 10038]") == 0:  # 서버 접근이 끊길 경우
-                    msg = "접속서버 연결 끊김"
+                    msg = str(ex)
                     return msg
-                elif str(ex).find("[WinError 10054]") == 0:  # 서버 접근이 끊길 경우
-                    msg = "접속서버 연결 끊김"
+                elif str(ex).find("[WinError 10053 ]") == 0:  # 서버 접근이 끊길 경우
+                    msg = str(ex)
                     return msg
                 else:
                     time.sleep(1000)

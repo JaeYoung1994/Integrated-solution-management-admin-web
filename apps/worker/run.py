@@ -10,10 +10,8 @@ from app.device.device import Device
 from common.utils import Utils
 from common.init import Init
 
-HOST = 'shiptroll.com'
-PORT = 20000
-HOST = '192.168.219.102'
-PORT = 9009
+HOST = Init.getHost()
+PORT = Init.getPort()
 
 async def worker(cate, msg):
     tcpClient = TCPClient()

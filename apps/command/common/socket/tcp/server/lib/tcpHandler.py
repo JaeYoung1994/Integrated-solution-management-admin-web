@@ -40,7 +40,6 @@ class TCPHandler(socketserver.BaseRequestHandler):
             msg = {'job':'init'}
             # 등록 정보 호출
             conn.send(json.dumps(msg).encode());
-
             msg = self.request.recv(1024)
             client_name = msg.decode()
             client_name = self.tcpClientManger.addClient(client_name, self.request, self.client_address)
